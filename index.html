@@ -1,0 +1,114 @@
+// THIS IS FOR EDUCATIONAL PURPOSES
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tracking...</title>
+
+<style>
+  body {
+    background: black;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    margin: 0;
+    padding: 20px;
+  }
+
+  #terminal {
+    max-width: 800px;
+    margin: auto;
+    white-space: pre-line;
+    font-size: 18px;
+  }
+
+  a {
+    color: #00ff00;
+    text-decoration: underline;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="terminal"></div>
+
+<audio id="typeSound" src="https://www.soundjay.com/mechanical/keyboard-1.mp3" preload="auto"></audio>
+
+<script>
+const term = document.getElementById("terminal");
+const sound = document.getElementById("typeSound");
+
+function playSound() {
+  sound.currentTime = 0;
+  sound.play().catch(() => {});
+}
+
+function type(text, speed = 25) {
+  return new Promise(resolve => {
+    let i = 0;
+    function typing() {
+      if (i < text.length) {
+        term.innerHTML += text.charAt(i);
+        playSound();
+        i++;
+        setTimeout(typing, speed);
+      } else {
+        term.innerHTML += "\n";
+        resolve();
+      }
+    }
+    typing();
+  });
+}
+
+async function run() {
+  await type("Initializing system...");
+  await type("Connecting to network...");
+  await type("Access granted...");
+  await type("Fetching IP...");
+
+  try {
+    const ipRes = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipRes.json();
+    const ip = ipData.ip;
+
+    await type("IP FOUND: " + ip);
+    await type("Querying database...");
+
+    const res = await fetch(`https://api.allorigins.win/raw?url=http://ip-api.com/json/${ip}`);
+    const info = await res.json();
+
+    if (info.status !== "success") throw new Error();
+
+    const lat = info.lat || 40.7128;
+    const lon = info.lon || -74.0060;
+
+    await type("Country: " + info.country);
+    await type("Region: " + info.regionName);
+    await type("City: " + info.city);
+    await type("ISP: " + info.isp);
+    await type("Coordinates: " + lat + ", " + lon);
+
+    const maps = `https://www.google.com/maps?q=${lat},${lon}`;
+    await type("Google Maps:");
+    term.innerHTML += `<a href="${maps}" target="_blank">[VIEW LOCATION]</a>\n`;
+
+  } catch (err) {
+    await type("Failed to retrieve data...");
+  }
+
+  await type("");
+  await type("Injecting tracker...");
+  await type("Monitoring activity...");
+  await type("");
+  await type("your ip is logged.");
+  await type("please stop going on random websites :)");
+  await type("");
+  await type("disconnecting...");
+}
+
+run();
+</script>
+
+</body>
+</html>
